@@ -5,6 +5,8 @@ import torch
 import torch.nn as nn 
 import torch.nn.functional as F
 
+from model.layer import *
+
 class VectorQuantizer(nn.Module):
     def __init__(self, config, device):
         self.device = device 
@@ -44,22 +46,43 @@ class VectorQuantizer(nn.Module):
         # to be used later from updating the codebook.
         quantized = input + (quantized - input).detach()  
         
-        # Perplexity : Information Theory
+        # Perplexity : Information Theory (TBD)
         avg_probs = torch.mean(encodings, dim=0)
         perplexity = torch.exp(-torch.sum(avg_probs * torch.log(avg_probs + 1e-10)))
         
         return loss, quantized.permute(0, 3, 1, 2).contiguous(), perplexity, encodings
 
+# Encoder & Decoder : Based on ResNet
 class Encoder(nn.Module):
     def __init__(self, config):
-        pass
+        in_channels = config['in_channels']
+        num_hiddens = config['num_hiddens']
+        self.model = nn.Sequential(
+            Conv2dInit(in_channels, num_hiddens//2, 4, 2, 1),
+            nn.ReLU(True),
+            Conv2dInit(num_hiddens//2, num_hiddens, 4, 2, 1),
+            nn.ReLU(True),
+            Conv2dInit(num_hiddens, num_hiddens, 3, 1, 1), 
+            ResidualBlocks(num_hiddens, num_hiddens,
+                            num_residual_layers=config['num_residual_layers'],
+                            num_residual_hiddens=config['num_residual_hiddens']))
 
     def forward(self, input):
-        pass
+        return self.model(input)
 
 class Decoder(nn.Module):
     def __init__(self, config):
-        pass
+        in_channels = config['in_channels']
+        num_hiddens = config['num_hiddens']
+        self.model = nn.Sequential(
+            Conv2dInit(in_channels, num_hiddens, 3, 1, 1),
+            ResidualBlocks(num_hiddens, num_hiddens,
+                            num_residual_layers=config['num_residual_layers'],
+                            num_residual_hiddens=config['num_residual_hiddens']),
+            nn.ConvTransposed2d(num_hiddens, num_hiddens//2, 4, 2, 1),
+            nn.ReLU(True),
+            nn.ConvTransposed2d(num_hiddens, 3, 4, 2, 1),
+        )
 
     def forward(self, input):
-        pass
+        return self.model(input)
