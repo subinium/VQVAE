@@ -6,11 +6,12 @@ Unofficial Pytorch implementation of [Neural Discrete Representation Learning (2
 
 ## File description
 
-- `requirments.py`
-- `model.py`
+- `model`
+- `data_utils.py`
 - `train.py`
 - `inference.py`
 - `visualization.py`
+- `requirements.txt`
 - `config.json`
 
 ## Configuration

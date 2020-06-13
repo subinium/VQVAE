@@ -9,12 +9,13 @@ from model.layer import *
 
 class VectorQuantizer(nn.Module):
     def __init__(self, config, device):
+        super().__init__()
         self.device = device 
         self.embedding_dim = config['embedding_dim']
         self.num_embeddings = config['num_embeddings']
         self.commitment_cost = config['beta']
         self.codebook = nn.Embedding(self.num_embeddings, self.embedding_dim)
-        self.codebook.weight.data.uniform_(-1/self.num_embedding, 1/self.num_ebedding) # why uniform init -1, 1?
+        self.codebook.weight.data.uniform_(-1/self.num_embeddings, 1/self.num_embeddings) # why uniform init -1, 1?
 
     def forward(self, input):
         # BCHW -> BHWC : because codebook find most closest *channel set*
@@ -55,6 +56,7 @@ class VectorQuantizer(nn.Module):
 # Encoder & Decoder : Based on ResNet
 class Encoder(nn.Module):
     def __init__(self, config):
+        super().__init__()
         in_channels = config['in_channels']
         num_hiddens = config['num_hiddens']
         self.model = nn.Sequential(
@@ -72,17 +74,37 @@ class Encoder(nn.Module):
 
 class Decoder(nn.Module):
     def __init__(self, config):
+        super().__init__()
         in_channels = config['in_channels']
         num_hiddens = config['num_hiddens']
+        out_channels = config['out_channels']
         self.model = nn.Sequential(
             Conv2dInit(in_channels, num_hiddens, 3, 1, 1),
             ResidualBlocks(num_hiddens, num_hiddens,
                             num_residual_layers=config['num_residual_layers'],
                             num_residual_hiddens=config['num_residual_hiddens']),
-            nn.ConvTransposed2d(num_hiddens, num_hiddens//2, 4, 2, 1),
+            nn.ConvTranspose2d(num_hiddens, num_hiddens//2, 4, 2, 1),
             nn.ReLU(True),
-            nn.ConvTransposed2d(num_hiddens, 3, 4, 2, 1),
+            nn.ConvTranspose2d(num_hiddens, config['out_channels'], 4, 2, 1),
         )
 
     def forward(self, input):
         return self.model(input)
+
+class VQVAE(nn.Module):
+    def __init__(self, config, device):
+        super().__init__()
+        self.encoder = Encoder(config['Encoder'])
+        
+        self.pre_conv = Conv2dInit(config['Encoder']['num_hiddens'], 
+                                   config['VectorQuantizer']['embedding_dim'],
+                                    1, 1)
+        self.vq = VectorQuantizer(config['VectorQuantizer'], device)
+        self.decoder = Decoder(config['Decoder'])
+
+    def forward(self, input):
+        z = self.encoder(input)
+        z = self.pre_conv(z)
+        loss, quantized, perplexity, _ = self.vq(z)
+        x_recon = self.decoder(quantized)
+        return loss, x_recon, perplexity

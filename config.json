@@ -1,0 +1,25 @@
+{
+    "name" : "VQVAE",
+    "seed" : 42,
+    "lr" : 1e-3,
+    "batch_size" : 256,
+    "epoch" : 10,
+    "Encoder" : {
+        "in_channels" : 3, 
+        "num_hiddens" : 128,
+        "num_residual_layers" :32 ,
+        "num_residual_hiddens": 2 
+    }, 
+    "VectorQuantizer" : {
+        "embedding_dim" : 64,
+        "num_embeddings" : 512, 
+        "beta" : 0.25
+    },
+    "Decoder" : {
+        "in_channels" : 64, 
+        "num_hiddens" : 128,
+        "out_channels" : 3,
+        "num_residual_layers" :32 ,
+        "num_residual_hiddens": 2
+    }
+}

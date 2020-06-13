@@ -15,6 +15,7 @@ class Conv2dInit(nn.Module):
                 param=0.02):
         super().__init__()
         if padding is None:
+            if type(kernel_size) == int : kernel_size = (kernel_size,kernel_size)
             assert(kernel_size[0] % 2 == 1 and kernel_size[1] % 2 == 1)
             padding = (int(dilation[0] * (kernel_size[0] - 1) / 2), int(dilation[1] * (kernel_size[1] - 1) / 2))
 
