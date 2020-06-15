@@ -36,7 +36,9 @@ def train(config):
             loss.backward()
             optimizer.step()
 
-
+            # Logger (TBD)
+            print(f'Epoch {epoch} : {idx}/{len(train_loader)} : {loss.item()}\r')
+        print()
 
 if __name__ == '__main__':
     with open('config.json') as f:

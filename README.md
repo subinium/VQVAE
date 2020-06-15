@@ -4,21 +4,21 @@ Unofficial Pytorch implementation of [Neural Discrete Representation Learning (2
 
 > Based on [zalandoresearch/pytorch-vq-vae](https://github.com/zalandoresearch/pytorch-vq-vae) repository.
 
-## File description
+## VQVAE (TBD)
 
-- `model`
-- `data_utils.py`
-- `train.py`
-- `inference.py`
-- `visualization.py`
-- `requirements.txt`
-- `config.json`
+## Train (TBD)
 
-## Configuration
+## Inference (TBD)
 
-## Train
+## To Do
 
-## Inference
+- [ ] VectorQuantize EMA ver.
+- [ ] VQ-VAE-2
+- [ ] Logger (with TensorboardX)
+- [ ] Warm Start (Save model & Load pre-trained model)
+- [ ] Visualization for Interpretability (Interactive Mode)
+- [ ] Custom Model Diagram (with Keynote)
+- [ ] Output Image
 
 ## Contact
 

@@ -28,8 +28,8 @@ class VectorQuantizer(nn.Module):
         # Calculate distances
         # ||z_e - z_q||_2 = z_e**2 + z_q**2 - 2*z_e*z_q
         distances = (torch.sum(flat_input**2, dim=1, keepdim=True) 
-                    + torch.sum(self._embedding.weight**2, dim=1)
-                    - 2 * torch.matmul(flat_input, self.embedding.weight.t()))
+                    + torch.sum(self.codebook.weight**2, dim=1)
+                    - 2 * torch.matmul(flat_input, self.codebook.weight.t()))
             
         # Find closest codebook components
         encoding_indices = torch.argmin(distances, dim=1).unsqueeze(1) 
@@ -37,7 +37,7 @@ class VectorQuantizer(nn.Module):
         # OneHot Masking for gradient: You can use torch.eye for one-hot encoding
         encodings = torch.zeros(encoding_indices.shape[0], self.num_embeddings, device=self.device)
         encodings.scatter_(1, encoding_indices, 1) 
-        quantized = torch.matmul(encodings, self.embedding.weight).view(input_shape) # reshape
+        quantized = torch.matmul(encodings, self.codebook.weight).view(input_shape) # reshape
         
         # Loss
         e_latent_loss = F.mse_loss(quantized.detach(), input) # z_e loss : encoder components
@@ -85,7 +85,7 @@ class Decoder(nn.Module):
                             num_residual_hiddens=config['num_residual_hiddens']),
             nn.ConvTranspose2d(num_hiddens, num_hiddens//2, 4, 2, 1),
             nn.ReLU(True),
-            nn.ConvTranspose2d(num_hiddens, config['out_channels'], 4, 2, 1),
+            nn.ConvTranspose2d(num_hiddens//2, config['out_channels'], 4, 2, 1),
         )
 
     def forward(self, input):
