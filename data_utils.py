@@ -19,14 +19,12 @@ def dataloader_init(config):
 
     training_loader = DataLoader(training_data, 
                              batch_size=batch_size, 
-                             shuffle=True,
-                             pin_memory=True)
+                             shuffle=True)
 
     validation_loader = DataLoader(validation_data,
                                batch_size=32,
-                               shuffle=True,
-                               pin_memory=True)
+                               shuffle=True)
 
-    data_var = np.var(training_data.data / 255.0)
+    # data_var = np.var(training_data.data / 255.0)
 
-    return training_loader, validation_loader, data_var
+    return training_loader, validation_loader
