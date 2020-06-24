@@ -4,7 +4,8 @@ import numpy as np
 from torch.utils.data import DataLoader
 
 def dataloader_init(config):
-    batch_size = config['batch_size']
+    train_batch_size = config['train_batch_size']
+    valid_batch_size = config['valid_batch_size']
     training_data = datasets.CIFAR10(root="data", train=True, download=True,
                                     transform=transforms.Compose([
                                         transforms.ToTensor(),
@@ -18,13 +19,14 @@ def dataloader_init(config):
                                     ]))
 
     training_loader = DataLoader(training_data, 
-                             batch_size=batch_size, 
+                             batch_size=train_batch_size, 
                              shuffle=True)
 
     validation_loader = DataLoader(validation_data,
-                               batch_size=32,
-                               shuffle=True)
+                               batch_size=valid_batch_size,
+                               shuffle=False)
 
     # data_var = np.var(training_data.data / 255.0)
 
     return training_loader, validation_loader
+

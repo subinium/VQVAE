@@ -2,13 +2,11 @@
   "name": "VQVAE",
   "seed": 42,
   "lr": 1e-3,
-  "batch_size": 256,
-  "output_dir": "result",
-  "summary_dir": "summary",
-  "checkpoint_dir": "model",
-  "log_dir": "log",
+  "train_batch_size": 256,
+  "valid_batch_size" : 32,
   "num_epochs": 100,
   "iters_per_validate": 1000,
+  
   "Encoder": {
     "in_channels": 3,
     "num_hiddens": 128,
